@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TwitchAutoClaimPoints
 // @namespace    https://github.com/janumeke/TwitchAutoClaimPoints
-// @version      0.1
+// @version      0.2
 // @description  auto click point bonus on Twitch
 // @author       janumeke
 // @match        https://www.twitch.tv/*
@@ -13,7 +13,7 @@
 
     // Your code here...
     var delayAfterSuccess = 900; //secs
-    var delayAfterFailure = 30; //secs
+    var delayAfterFailure = 15; //secs
 
     (function Claim(){
         var button = document.getElementsByClassName('claimable-bonus__icon')[0];
