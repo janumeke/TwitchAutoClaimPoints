@@ -1,7 +1,6 @@
 // ==UserScript==
 // @name         TwitchAutoClaimPoints
 // @namespace    https://github.com/janumeke/TwitchAutoClaimPoints
-// @downloadURL  https://github.com/janumeke/TwitchAutoClaimPoints/blob/master/TwitchAutoClaimPoints.user.js
 // @version      0.1
 // @description  auto click point bonus on Twitch
 // @author       janumeke
