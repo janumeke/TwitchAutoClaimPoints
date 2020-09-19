@@ -11,7 +11,7 @@
 (function() {
     'use strict';
 
-    var log = true;
+    const log = true;
 
     /*
      It seems that if you claimed the bonus not too late than the time it had popped up,
@@ -20,15 +20,14 @@
      This script will first try to find the time it just popped up, and then go back to the
      normal interval.
     */
-    var delayProbe = 15; //secs
-    var delayBonus = 900; //secs
-    var delayRsrv = (1 / 2) * delayBonus; //secs, assumed
+    const delayProbe = 15; //secs
+    const delayBonus = 900; //secs
+    const delayRsrv = (1 / 2) * delayBonus; //secs, assumed
 
-    var firstClaim = true;
-    var now;
+    var firstClaim; //This is set to true by 'Check' before calling 'Claim'
     var autoclaim;
     function Claim(){
-        var button = document.getElementsByClassName('claimable-bonus__icon')[0];
+        const button = document.getElementsByClassName('claimable-bonus__icon')[0];
         if(button){ //Bonus has popped up.
             button.click();
             if(firstClaim){
@@ -42,14 +41,14 @@
                  at the time of the second claim.
                 */
                 if(log){
-                    now = new Date();
+                    let now = new Date();
                     console.log(`TwitchAutoClaimPoints: (${now.toLocaleTimeString()}) Bonus points are claimed by the script. Next try is after ${delayBonus - delayRsrv - delayProbe} seconds.`);
                 }
                 autoclaim = setTimeout(Claim, (delayBonus - delayRsrv - delayProbe) * 1000);
             }
             else{
                 if(log){
-                    now = new Date();
+                    let now = new Date();
                     console.log(`TwitchAutoClaimPoints: (${now.toLocaleTimeString()}) Bonus points are claimed by the script. Next try is after ${delayBonus - delayProbe} seconds.`);
                 }
                 autoclaim = setTimeout(Claim, (delayBonus - delayProbe) * 1000);
@@ -57,7 +56,7 @@
         }
         else{ //Bonus is not available. Start probing.
             if(log){
-                now = new Date();
+                let now = new Date();
                 console.log(`TwitchAutoClaimPoints: (${now.toLocaleTimeString()}) Bonus points cannot be found by the script. Next try is after ${delayProbe} seconds.`);
             }
             autoclaim = setTimeout(Claim, delayProbe * 1000);
@@ -72,11 +71,12 @@
         */
         clearTimeout(autoclaim);
 
-        var regexReserved = new RegExp('/(directory|videos|downloads|broadcast|p|creatorcamp|store|partner|jobs|bits|subs|prime|legal|turbo|products|redeem|search|settings|friends|subscriptions|inventory|drops|wallet)(/.*)?');
-        var regexChannel = new RegExp('/[A-Za-z0-9_]+/?');
+        const regexReserved = new RegExp('/(directory|videos|downloads|broadcast|p|creatorcamp|store|partner|jobs|bits|subs|prime|legal|turbo|products|redeem|search|settings|friends|subscriptions|inventory|drops|wallet)(/.*)?');
+        const regexChannel = new RegExp('/[A-Za-z0-9_]+/?');
         if(location.hostname == 'www.twitch.tv' && //This script may still be triggerred on subdomains other than "www"
            !regexReserved.test(location.pathname) &&
            regexChannel.test(location.pathname)){
+            firstClaim = true;
             Claim();
         }
         else{
@@ -87,9 +87,10 @@
     }
     Check(); //Always check when the whole page first loads
 
-    var pushState = history.pushState;
-    history.pushState = function(){
+    const pushState = history.pushState;
+    history.pushState = function(){ //When single page applications change routes
         pushState.apply(history, arguments);
         Check();
     };
+    window.addEventListener('popstate', Check); //When navigating with the back/forward buttons
 })();
