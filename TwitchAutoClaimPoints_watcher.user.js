@@ -45,8 +45,7 @@
             clearInterval(tryWatch);
             Claim(); //Try claim in case the button has existed
 
-            target = target.lastChild;
-            observer.observe(target, {childList: true});
+            observer.observe(target.lastChild, {childList: true});
             if(debug){
                 console.log('TwitchAutoClaimPoints: Target is being watched.');
             }
