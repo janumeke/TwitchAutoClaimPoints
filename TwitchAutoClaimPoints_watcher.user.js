@@ -13,8 +13,9 @@
 
     const log = true;
     const debug = false; //If debug is set to true, the value of log will be ignored
-    
-    const tryWatchLimit = 10;
+
+    const tryWatchPeriod = 5; //secs
+    const tryWatchLimit = 10; //times
 
     function Claim(){
         const button = document.getElementsByClassName('claimable-bonus__icon')[0];
@@ -39,11 +40,12 @@
     function Watch(){ //This function will be called repeatedly until itself decides it's successful
         observer.disconnect();
 
-        const target = document.querySelector('div.community-points-summary').lastChild;
+        const target = document.querySelector('div.community-points-summary');
         if(target){
             clearInterval(tryWatch);
             Claim(); //Try claim in case the button has existed
 
+            target = target.lastChild;
             observer.observe(target, {childList: true});
             if(debug){
                 console.log('TwitchAutoClaimPoints: Target is being watched.');
@@ -69,7 +71,7 @@
            !regexReserved.test(location.pathname) &&
            regexChannel.test(location.pathname)){
             tryWatchQuota = tryWatchLimit;
-            tryWatch = setInterval(Watch, 5000);
+            tryWatch = setInterval(Watch, tryWatchPeriod * 1000);
         }
         else{
             if(debug){
