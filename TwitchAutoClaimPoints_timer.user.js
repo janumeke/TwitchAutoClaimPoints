@@ -80,7 +80,7 @@
         */
         clearTimeout(autoclaim);
 
-        const regexReserved = new RegExp('^/(directory|videos|downloads|broadcast|p|creatorcamp|store|partner|jobs|bits|subs|prime|legal|turbo|products|redeem|search|settings|friends|subscriptions|inventory|drops|wallet)(/.*)?$');
+        const regexReserved = new RegExp('^/(directory|videos|downloads|broadcast|p|creatorcamp|store|partner|jobs|bits|subs|prime|legal|turbo|products|redeem|search|settings|friends|subscriptions|inventory|drops|wallet|event|team)(/.*)?$');
         const regexChannel = new RegExp('^/[A-Za-z0-9_]+(/(about|schedule|videos|clips|collections)?)?$');
         if(location.hostname == 'www.twitch.tv' && //This script may still be triggerred on subdomains other than "www"
            !regexReserved.test(location.pathname) &&
