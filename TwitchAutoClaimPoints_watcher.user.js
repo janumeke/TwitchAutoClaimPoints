@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TwitchAutoClaimPoints
 // @namespace    https://github.com/janumeke/TwitchAutoClaimPoints
-// @version      0.1
+// @version      0.2
 // @description  Auto click point bonus on Twitch.
 // @author       janumeke
 // @match        https://www.twitch.tv/*
@@ -28,59 +28,71 @@
         }
     }
 
-    const observer = new MutationObserver(function(){
-        if(debug){
-            console.log("TwitchAutoClaimPoints: Target change is detected.");
-        }
-        Claim();
-    });
-
-    var tryWatch;
-    var tryWatchQuota; //This should be set when 'Watch' starts being repeatedly called
-    function Watch(){ //This function will be called repeatedly until itself decides it's successful
-        observer.disconnect();
-
-        const target = document.querySelector('div.community-points-summary');
-        if(target){
-            clearInterval(tryWatch);
-            Claim(); //Try claim in case the button has existed
-
-            observer.observe(target.lastChild, {childList: true});
-            if(debug){
-                console.log('TwitchAutoClaimPoints: Target is being watched.');
-            }
-        }
-        else{
-            if(--tryWatchQuota <= 0){
-                clearInterval(tryWatch);
+    class Watcher{
+        constructor(){
+            this.observer = new MutationObserver(function(){
                 if(debug){
-                    console.log('TwitchAutoClaimPoints: Target cannot be found and watched. Targeting has stopped because it reached the limit.');
+                    console.log("TwitchAutoClaimPoints: Target change is detected.");
+                }
+                Claim();
+            });
+        }
+
+        Watch(){
+            this.Unwatch();
+
+            this.tryWatchQuota = tryWatchLimit;
+            this.tryWatch = setInterval(this.#WatchHelper.bind(this), tryWatchPeriod * 1000);
+            //Invariant: At most one 'setInterval' of 'WatchHelper' is running
+            //Invariant: observer observes exactly one target if it succeeds, or zero targets if it fails
+        }
+
+        #WatchHelper(){ //This function will be called repeatedly until itself decides it is successful or reaches the limit
+            const target = document.querySelector('div.community-points-summary');
+            if(target){
+                clearInterval(this.tryWatch);
+                Claim(); //Try claim in case the button has existed
+
+                this.observer.observe(target.lastChild, {childList: true});
+                if(debug){
+                    console.log('TwitchAutoClaimPoints: Target is being watched.');
+                }
+            }
+            else{
+                if(--this.tryWatchQuota <= 0){
+                    clearInterval(this.tryWatch);
+                    if(debug){
+                        console.log('TwitchAutoClaimPoints: Target cannot be found and watched. Targeting has stopped because it reached the limit.');
+                    }
                 }
             }
         }
-        //Invariant: observer observes exactly one target if it succeeds, or zero targets if it fails
+
+        Unwatch(){
+            clearInterval(this.tryWatch);
+            this.observer.disconnect();
+        }
     }
 
+    const watcher = new Watcher();
     function Check(){ //This function will be called when the route is changed
-        clearInterval(tryWatch);
+        watcher.Unwatch();
 
         const regexReserved = new RegExp('^/(directory|videos|downloads|broadcast|p|creatorcamp|store|partner|jobs|bits|subs|prime|legal|turbo|products|redeem|search|settings|friends|subscriptions|inventory|drops|wallet)(/.*)?$');
         const regexChannel = new RegExp('^/[A-Za-z0-9_]+(/(about|schedule|videos|clips|collections)?)?$');
         if(location.hostname == 'www.twitch.tv' && //This script may still be triggerred on subdomains other than "www"
            !regexReserved.test(location.pathname) &&
            regexChannel.test(location.pathname)){
-            tryWatchQuota = tryWatchLimit;
-            tryWatch = setInterval(Watch, tryWatchPeriod * 1000);
+            watcher.Watch();
         }
         else{
             if(debug){
                 console.log('TwitchAutoClaimPoints: The script determines this page is not a channel. The automatic point claim will not begin.');
             }
         }
-        //Invariant: At most one 'setInterval' of 'Watch' is running
     }
-    Check(); //Always check when the whole page first loads
 
+    Check(); //Always check when the whole page first loads
     const pushState = history.pushState;
     history.pushState = function(){ //When single page applications change routes
         pushState.apply(history, arguments);
