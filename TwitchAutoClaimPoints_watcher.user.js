@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         TwitchAutoClaimPoints
 // @namespace    https://github.com/janumeke/TwitchAutoClaimPoints
-// @version      0.2
-// @description  Auto click point bonus on Twitch.
+// @version      0.3
+// @description  Auto clicks point bonus on Twitch.
 // @author       janumeke
 // @match        https://www.twitch.tv/*
 // @grant        none
@@ -18,12 +18,12 @@
     const tryWatchLimit = 10; //times
 
     function Claim(){
-        const button = document.getElementsByClassName('claimable-bonus__icon')[0];
+        const button = document.querySelector('.claimable-bonus__icon');
         if(button){
-            button.click();
+            button.closest('button').click();
             if(log || debug){
                 let now = new Date();
-                console.log(`TwitchAutoClaimPoints: (${now.toLocaleTimeString()}) Bonus points are claimed by the script.`);
+                console.log(`TwitchAutoClaimPoints: Bonus points are claimed by the script. (${now.toLocaleTimeString()})`);
             }
         }
     }
@@ -79,7 +79,7 @@
         watcher.Unwatch();
 
         const regexReserved = new RegExp('^/(directory|videos|downloads|broadcast|p|creatorcamp|store|partner|jobs|bits|subs|prime|legal|turbo|products|redeem|search|settings|friends|subscriptions|inventory|drops|wallet|event|team)(/.*)?$');
-        const regexChannel = new RegExp('^/[A-Za-z0-9_]+(/(about|schedule|videos|clips|collections|followers|following)?)?$');
+        const regexChannel = new RegExp('^/[A-Za-z0-9_]+(/(about|schedule|videos|clips|collections|followers|following|squad)?)?$');
         if(location.hostname == 'www.twitch.tv' && //This script may still be triggerred on subdomains other than "www"
            !regexReserved.test(location.pathname) &&
            regexChannel.test(location.pathname)){
