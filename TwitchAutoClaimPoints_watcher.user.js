@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TwitchAutoClaimPoints
 // @namespace    https://github.com/janumeke/TwitchAutoClaimPoints
-// @version      0.3
+// @version      0.4
 // @description  Auto clicks point bonus on Twitch.
 // @author       janumeke
 // @match        https://www.twitch.tv/*
@@ -14,7 +14,7 @@
     const log = true;
     const debug = false; //If debug is set to true, the value of log will be ignored
 
-    const tryWatchPeriod = 5; //secs
+    const tryWatchPeriod = 3; //secs
     const tryWatchLimit = 10; //times
 
     function Claim(){
@@ -92,11 +92,11 @@
         }
     }
 
-    Check(); //Always check when the whole page first loads
     const pushState = history.pushState;
     history.pushState = function(){ //When single page applications change routes
         pushState.apply(history, arguments);
         Check();
     };
     window.addEventListener('popstate', Check); //When navigating with the back/forward buttons
+    Check(); //Always check when the whole page first loads
 })();
